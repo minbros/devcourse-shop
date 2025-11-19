@@ -6,7 +6,6 @@ import grepp.shop.member.MemberResponse;
 import grepp.shop.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +23,7 @@ public class MemberController {
     )
     @GetMapping
     public ResponseEntity<List<MemberResponse>> getMembers() {
-        List<MemberResponse> members = memberService.getMembers();
-        return new ResponseEntity<>(HttpStatus.OK.value(), members.size(), members);
+        return memberService.getMembers();
     }
 
     @Operation(
@@ -34,8 +32,7 @@ public class MemberController {
     )
     @PostMapping
     public ResponseEntity<MemberResponse> createMember(@RequestBody MemberRequest request) {
-        MemberResponse response = memberService.createMember(request);
-        return new ResponseEntity<>(HttpStatus.CREATED.value(), 1, response);
+        return memberService.createMember(request);
     }
 
     @Operation(
@@ -44,8 +41,7 @@ public class MemberController {
     )
     @PutMapping("{id}")
     public ResponseEntity<MemberResponse> updateMember(@RequestBody MemberRequest request, @PathVariable UUID id) {
-        MemberResponse response = memberService.updateMember(request, id);
-        return new ResponseEntity<>(HttpStatus.OK.value(), 1, response);
+        return memberService.updateMember(request, id);
     }
 
     @Operation(
@@ -54,7 +50,6 @@ public class MemberController {
     )
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable UUID id) {
-        memberService.deleteMember(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT.value(), 0, null);
+        return memberService.deleteMember(id);
     }
 }
