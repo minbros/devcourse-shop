@@ -5,7 +5,6 @@ public record MemberRequest(
         String name,
         String password,
         String phone,
-        String saltKey,
         String flag
 ) {
 }
