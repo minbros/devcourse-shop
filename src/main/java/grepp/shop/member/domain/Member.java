@@ -79,11 +79,11 @@ public class Member {
     }
 
     public void update(MemberCommand command) {
-        if (command.email() != null) email = command.email();
-        if (command.name() != null) name = command.name();
-        if (command.password() != null) password = command.password();
-        if (command.phone() != null) phone = command.phone();
-        if (command.flag() != null) flag = command.flag();
+        email = command.email();
+        name = command.name();
+        password = command.password();
+        phone = command.phone();
+        flag = command.flag();
     }
 
     @PrePersist

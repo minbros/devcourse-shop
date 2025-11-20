@@ -1,0 +1,14 @@
+package grepp.shop.product.presentation.dto;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+public record ProductRequest(
+        String name,
+        String description,
+        BigDecimal price,
+        Integer stock,
+        String status,
+        UUID creatorId
+) {
+}

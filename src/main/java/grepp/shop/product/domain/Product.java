@@ -1,24 +1,27 @@
 package grepp.shop.product.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import grepp.shop.product.application.dto.ProductCommand;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "product")
+@Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "product", schema = "public")
 public class Product {
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "name", nullable = false, length = 100)
@@ -32,7 +35,7 @@ public class Product {
 
     @ColumnDefault("0")
     @Column(name = "stock", nullable = false)
-    private Integer stock;
+    private int stock;
 
     @ColumnDefault("'ACTIVE'")
     @Column(name = "status", nullable = false, length = 20)
@@ -41,12 +44,35 @@ public class Product {
     @Column(name = "reg_id", nullable = false)
     private UUID regId;
 
+    @CreatedDate
     @Column(name = "reg_dt", nullable = false)
-    private OffsetDateTime regDt;
+    private Instant regDt;
 
     @Column(name = "modify_id", nullable = false)
     private UUID modifyId;
 
+    @LastModifiedDate
     @Column(name = "modify_dt", nullable = false)
-    private OffsetDateTime modifyDt;
+    private Instant modifyDt;
+
+    public static Product from(ProductCommand command) {
+        return Product.builder()
+                .name(command.name())
+                .description(command.description())
+                .price(command.price())
+                .stock(command.stock())
+                .status(command.status())
+                .regId(command.creatorId())
+                .modifyId(command.creatorId())
+                .build();
+    }
+
+    public void update(ProductCommand command) {
+        name = command.name();
+        description = command.description();
+        price = command.price();
+        stock = command.stock();
+        status = command.status();
+        modifyId = command.creatorId();
+    }
 }
