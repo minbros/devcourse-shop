@@ -10,6 +10,7 @@ import java.util.UUID;
 @Builder
 public record ProductResponse(
         UUID id,
+        UUID sellerId,
         String name,
         String description,
         BigDecimal price,
@@ -21,6 +22,7 @@ public record ProductResponse(
     public static ProductResponse from(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())
+                .sellerId(product.getSellerId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())

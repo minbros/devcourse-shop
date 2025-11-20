@@ -24,6 +24,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "seller_id", nullable = false)
+    private UUID sellerId;
+
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
@@ -57,13 +60,14 @@ public class Product {
 
     public static Product from(ProductCommand command) {
         return Product.builder()
+                .sellerId(command.sellerId())
                 .name(command.name())
                 .description(command.description())
                 .price(command.price())
                 .stock(command.stock())
                 .status(command.status())
-                .regId(command.creatorId())
-                .modifyId(command.creatorId())
+                .regId(command.operatorId())
+                .modifyId(command.operatorId())
                 .build();
     }
 
@@ -73,6 +77,6 @@ public class Product {
         price = command.price();
         stock = command.stock();
         status = command.status();
-        modifyId = command.creatorId();
+        modifyId = command.operatorId();
     }
 }
