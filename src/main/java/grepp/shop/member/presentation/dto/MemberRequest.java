@@ -1,4 +1,4 @@
-package grepp.shop.member;
+package grepp.shop.member.presentation.dto;
 
 public record MemberRequest(
         String email,

@@ -1,11 +1,15 @@
-package grepp.shop.controller;
+package grepp.shop.member.presentation;
 
 import grepp.shop.common.ResponseEntity;
-import grepp.shop.member.MemberRequest;
-import grepp.shop.member.MemberResponse;
-import grepp.shop.service.MemberService;
+import grepp.shop.member.application.dto.MemberCommand;
+import grepp.shop.member.presentation.dto.MemberRequest;
+import grepp.shop.member.application.dto.MemberResponse;
+import grepp.shop.member.application.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +26,11 @@ public class MemberController {
             description = "모든 회원의 정보를 조회합니다."
     )
     @GetMapping
-    public ResponseEntity<List<MemberResponse>> getMembers() {
-        return memberService.getMembers();
+    public ResponseEntity<List<MemberResponse>> getMembers(
+            @PageableDefault(sort = "regDt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        return memberService.getMembers(pageable);
     }
 
     @Operation(
@@ -32,7 +39,7 @@ public class MemberController {
     )
     @PostMapping
     public ResponseEntity<MemberResponse> createMember(@RequestBody MemberRequest request) {
-        return memberService.createMember(request);
+        return memberService.createMember(MemberCommand.from(request));
     }
 
     @Operation(
@@ -41,7 +48,7 @@ public class MemberController {
     )
     @PutMapping("{id}")
     public ResponseEntity<MemberResponse> updateMember(@RequestBody MemberRequest request, @PathVariable UUID id) {
-        return memberService.updateMember(request, id);
+        return memberService.updateMember(MemberCommand.from(request), id);
     }
 
     @Operation(

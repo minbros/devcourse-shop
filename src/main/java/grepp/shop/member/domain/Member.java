@@ -1,5 +1,6 @@
-package grepp.shop.member;
+package grepp.shop.member.domain;
 
+import grepp.shop.member.application.dto.MemberCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "\"member\"", schema = "public")
 public class Member {
@@ -67,22 +68,22 @@ public class Member {
     @Column(name = "flag", length = 5)
     private String flag;
 
-    public static Member from(MemberRequest request) {
+    public static Member from(MemberCommand command) {
         return Member.builder()
-                .email(request.email())
-                .name(request.name())
-                .password(request.password())
-                .flag(request.flag())
-                .phone(request.phone())
+                .email(command.email())
+                .name(command.name())
+                .password(command.password())
+                .flag(command.flag())
+                .phone(command.phone())
                 .build();
     }
 
-    public void update(MemberRequest request) {
-        if (request.email() != null) email = request.email();
-        if (request.name() != null) name = request.name();
-        if (request.password() != null) password = request.password();
-        if (request.phone() != null) phone = request.phone();
-        if (request.flag() != null) flag = request.flag();
+    public void update(MemberCommand command) {
+        if (command.email() != null) email = command.email();
+        if (command.name() != null) name = command.name();
+        if (command.password() != null) password = command.password();
+        if (command.phone() != null) phone = command.phone();
+        if (command.flag() != null) flag = command.flag();
     }
 
     @PrePersist

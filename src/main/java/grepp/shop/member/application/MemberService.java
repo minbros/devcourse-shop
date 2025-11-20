@@ -1,11 +1,13 @@
-package grepp.shop.service;
+package grepp.shop.member.application;
 
 import grepp.shop.common.ResponseEntity;
-import grepp.shop.member.Member;
-import grepp.shop.member.MemberRepository;
-import grepp.shop.member.MemberRequest;
-import grepp.shop.member.MemberResponse;
+import grepp.shop.member.domain.Member;
+import grepp.shop.member.domain.MemberRepository;
+import grepp.shop.member.application.dto.MemberCommand;
+import grepp.shop.member.application.dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,22 +19,23 @@ import java.util.UUID;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public ResponseEntity<List<MemberResponse>> getMembers() {
-        List<MemberResponse> response = memberRepository.findAll().stream()
+    public ResponseEntity<List<MemberResponse>> getMembers(Pageable pageable) {
+        Page<Member> page = memberRepository.findAll(pageable);
+        List<MemberResponse> response = page.stream()
                 .map(MemberResponse::from)
                 .toList();
-        return new ResponseEntity<>(HttpStatus.OK.value(), response.size(), response);
+        return new ResponseEntity<>(HttpStatus.OK.value(), page.getNumberOfElements(), response);
     }
 
-    public ResponseEntity<MemberResponse> createMember(MemberRequest request) {
-        Member member = Member.from(request);
+    public ResponseEntity<MemberResponse> createMember(MemberCommand command) {
+        Member member = Member.from(command);
         Member createdMember = memberRepository.save(member);
         return new ResponseEntity<>(HttpStatus.CREATED.value(), 1, MemberResponse.from(createdMember));
     }
 
-    public ResponseEntity<MemberResponse> updateMember(MemberRequest request, UUID id) {
+    public ResponseEntity<MemberResponse> updateMember(MemberCommand request, UUID id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException("Member not found: " + id));
 
         member.update(request);
         Member updatedMember = memberRepository.save(member);
