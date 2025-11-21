@@ -4,16 +4,8 @@
     <meta charset="UTF-8">
     <title>결제 실패</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2rem;
-            color: #b71c1c;
-        }
-
-        code {
-            background: #f4f4f4;
-            padding: 0.2rem 0.4rem;
-        }
+        body { font-family: Arial, sans-serif; margin: 2rem; color: #b71c1c; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; }
     </style>
 </head>
 <body>
@@ -22,11 +14,9 @@
 <pre id="payload"></pre>
 <pre id="result"></pre>
 <script>
-    const params = new URLSearchParams(globalThis.location.search);
+    const params = new URLSearchParams(window.location.search);
     const info = {};
-    for (const [value, key] of params) {
-        info[key] = value;
-    }
+    params.forEach((value, key) => info[key] = value);
     const payload = {
         orderId: info.orderId,
         paymentKey: info.paymentKey,
@@ -41,7 +31,7 @@
         try {
             const response = await fetch('/api/v1/payments/fail', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
@@ -51,7 +41,7 @@
         }
     }
 
-    await notifyFailure();
+    notifyFailure();
 </script>
 </body>
 </html>

@@ -3,7 +3,10 @@ package grepp.shop.payment.presentation;
 import grepp.shop.common.ResponseEntity;
 import grepp.shop.payment.application.PaymentService;
 import grepp.shop.payment.application.dto.PaymentCommand;
+import grepp.shop.payment.application.dto.PaymentFailureCommand;
+import grepp.shop.payment.application.dto.PaymentFailureInfo;
 import grepp.shop.payment.application.dto.PaymentInfo;
+import grepp.shop.payment.presentation.dto.PaymentFailureRequest;
 import grepp.shop.payment.presentation.dto.PaymentRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +31,11 @@ public class PaymentController {
     @PostMapping("/confirm")
     public ResponseEntity<PaymentInfo> confirm(@RequestBody PaymentRequest request) {
         return paymentService.confirm(PaymentCommand.from(request));
+    }
+
+    @Operation(summary = "결제 실패 기록", description = "결제 실패 기록을 저장합니다.")
+    @PostMapping("/fail")
+    public ResponseEntity<PaymentFailureInfo> fail(@RequestBody PaymentFailureRequest request) {
+        return paymentService.fail(PaymentFailureCommand.from(request));
     }
 }
