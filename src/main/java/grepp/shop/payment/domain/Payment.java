@@ -2,7 +2,6 @@ package grepp.shop.payment.domain;
 
 import grepp.shop.payment.application.dto.PaymentCommand;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,22 +23,18 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotNull
     @Column(name = "payment_key", nullable = false, length = 200)
     private String paymentKey;
 
-    @NotNull
     @Column(name = "order_id", nullable = false, length = 100)
     private String orderId;
 
-    @NotNull
     @Column(name = "total_amount", nullable = false)
     private Long amount;
 
     @Column(name = "method", length = 50)
     private String method;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private PaymentStatus status;
@@ -54,12 +49,10 @@ public class Payment {
     @Column(name = "fail_reason")
     private String failReason;
 
-    @NotNull
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @NotNull
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
