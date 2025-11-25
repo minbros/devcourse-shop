@@ -34,4 +34,9 @@ public class MemberRepositoryAdapter implements MemberRepository {
     public void deleteById(UUID uuid) {
         memberJpaRepository.deleteById(uuid);
     }
+
+    @Override
+    public Optional<Member> findByEmail(String email) {
+        return memberJpaRepository.findByEmail(email);
+    }
 }

@@ -1,23 +1,32 @@
 package grepp.shop.application;
 
-import grepp.shop.common.ResponseEntity;
 import grepp.shop.application.dto.MemberCommand;
 import grepp.shop.application.dto.MemberResponse;
+import grepp.shop.common.ResponseEntity;
 import grepp.shop.domain.Member;
 import grepp.shop.domain.MemberRepository;
+import grepp.shop.presentation.dto.LoginRequest;
+import grepp.shop.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtProvider;
 
     public ResponseEntity<List<MemberResponse>> getMembers(Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
@@ -28,16 +37,22 @@ public class MemberService {
     }
 
     public ResponseEntity<MemberResponse> createMember(MemberCommand command) {
-        Member member = Member.from(command);
+        String encodedPassword = passwordEncoder.encode(command.password());
+        Member member = Member.from(command, encodedPassword);
         Member createdMember = memberRepository.save(member);
         return new ResponseEntity<>(HttpStatus.CREATED.value(), 1, MemberResponse.from(createdMember));
     }
 
-    public ResponseEntity<MemberResponse> updateMember(MemberCommand request, UUID id) {
+    public ResponseEntity<MemberResponse> updateMember(MemberCommand command, UUID id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + id));
 
-        member.update(request);
+        String password = command.password();
+        String encodedPassword = (password == null || password.isBlank())
+                ? member.getPassword()
+                : passwordEncoder.encode(password);
+
+        member.update(command, encodedPassword);
         Member updatedMember = memberRepository.save(member);
         return new ResponseEntity<>(HttpStatus.OK.value(), 1, MemberResponse.from(updatedMember));
     }
@@ -45,5 +60,27 @@ public class MemberService {
     public ResponseEntity<Void> deleteMember(UUID id) {
         memberRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT.value(), 0, null);
+    }
+
+    public ResponseEntity<HashMap<String, Object>> login(LoginRequest loginRequest) {
+        Optional<Member> memberOptional = memberRepository.findByEmail(loginRequest.email());
+
+        HashMap<String, Object> res = new HashMap<>();
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            if (passwordEncoder.matches(loginRequest.password(), member.getPassword())) {
+                Authentication authentication = new UsernamePasswordAuthenticationToken(member.getId().toString(), null);
+                String token = jwtProvider.generateToken(authentication);
+                res.put("token", token);
+                return new ResponseEntity<>(HttpStatus.OK.value(), 1, res);
+            } else {
+                throw new IllegalArgumentException("password is not correct");
+            }
+        }
+        return null;
+    }
+
+    public boolean check(String httpMethod, String requestPath) {
+        return true;
     }
 }

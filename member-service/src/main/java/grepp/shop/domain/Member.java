@@ -69,19 +69,19 @@ public class Member {
     @Column(name = "flag", length = 5)
     private String flag;
 
-    public static Member from(MemberCommand command) {
+    public static Member from(MemberCommand command, String encodedPassword) {
         return Member.builder()
                 .email(command.email())
                 .name(command.name())
-                .password(command.password())
+                .password(encodedPassword)
                 .phone(command.phone())
                 .build();
     }
 
-    public void update(MemberCommand command) {
+    public void update(MemberCommand command, String encodedPassword) {
         email = command.email();
         name = command.name();
-        password = command.password();
+        password = encodedPassword;
         phone = command.phone();
     }
 
