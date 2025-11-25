@@ -31,7 +31,7 @@ management:
         include: refresh, health, beans, info, prometheus
 
 token:
-  secret:
+  secret: Q2VwQ2h6b1d6b1p6b1F6b1R6b1V6b1d6b1p6b1F6b1R6b1U=
 
 api:
   v1: /api/v1

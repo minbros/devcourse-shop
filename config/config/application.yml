@@ -2,7 +2,7 @@
 token:
   expiration_time: 7200000
   refresh_time: 86400000
-  secret: 'token_secret'
+  secret: Q2VwQ2h6b1d6b1p6b1F6b1R6b1V6b1d6b1p6b1F6b1R6b1U=
 
 eureka:
   instance:

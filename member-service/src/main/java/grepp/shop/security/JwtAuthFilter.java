@@ -25,7 +25,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @Nonnull HttpServletResponse response,
                                     @Nonnull FilterChain filterChain) throws ServletException, IOException {
         String token = getJwtFromRequest(request);
-        if ((token != null && jwtProvider.isValid(token)) || request.getContextPath().endsWith("/authorizations/check")) {
+        if (request.getServletPath().endsWith("/authorizations/check")) {
+            jwtProvider.validateToken(token);
             log.info("valid token {}", token);
         }
         filterChain.doFilter(request, response);

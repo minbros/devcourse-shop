@@ -47,5 +47,8 @@ info:
     description: API 라우팅 및 보안, 모니터링/메트릭 등의 기능을 간단하고 효과적인 방법으로 제공
   swagger-ui: http://localhost:8000/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
 
+token:
+  secret: Q2VwQ2h6b1d6b1p6b1F6b1R6b1V6b1d6b1p6b1F6b1R6b1U=
+
 messages:
   directory: ${user.dir}/msa-attach-volume/messages

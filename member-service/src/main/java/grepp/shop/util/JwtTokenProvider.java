@@ -30,9 +30,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean isValid(String token) {
-        String userData = getUserData(token);
-        return userData != null && !userData.isBlank();
+    public void validateToken(String token) {
+        getUserData(token);
     }
 
     public String getUserData(String token) {

@@ -3,6 +3,8 @@ package grepp.shop.apigateway.config;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import java.util.List;
+
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +53,7 @@ public class ReactiveAuthorization implements ReactiveAuthorizationManager<Autho
 
     // org.egovframe.cloud.common.config.GlobalConstant 값도 같이 변경해주어야 한다.
     public static final String AUTHORIZATION_URI = "/member-service" + "/api/v1/authorizations/check";
-    public static final String REFRESH_TOKEN_URI = "/member-service" + "/api/v1/users/token/refresh";
+    public static final String REFRESH_TOKEN_URI = "/user-service" + "/api/v1/users/token/refresh";
 
     /**
      * 요청에 대한 사용자의 권한여부 체크하여 true/false 리턴한다 헤더에 토큰이 있으면 유효성을 체크한다.
@@ -85,11 +87,13 @@ public class ReactiveAuthorization implements ReactiveAuthorizationManager<Autho
         ) {
             try {
                 authorizationHeader = authorizations.get(0);
-                String jwt = authorizationHeader.replace("Bearer", "");
-                String subject = Jwts.parser().setSigningKey(TOKEN_SECRET)
-                    .parseClaimsJws(jwt)
-                    .getBody()
-                    .getSubject();
+                String jwt = authorizationHeader.replace("Bearer ", "");
+                String subject = Jwts.parser()
+                        .verifyWith(Keys.hmacShaKeyFor(TOKEN_SECRET.getBytes()))
+                        .build().parseSignedClaims(jwt)
+                        .getPayload()
+                        .getSubject();
+                log.info("[JWT] Subject: {}", subject);
 
                 // refresh token 요청 시 토큰 검증만 하고 인가 처리 한다.
                 if (REFRESH_TOKEN_URI.equals(requestPath + "")) {
@@ -116,11 +120,9 @@ public class ReactiveAuthorization implements ReactiveAuthorizationManager<Autho
             String token = authorizationHeader; // Variable used in lambda expression should be final or effectively final
             Mono<Boolean> body = WebClient.create(baseUrl)
                 .get()
-                .headers(httpHeaders -> {
-                    httpHeaders.add(HttpHeaders.AUTHORIZATION, token);
-                })
+                .headers(httpHeaders -> httpHeaders.add(HttpHeaders.AUTHORIZATION, token))
                 .retrieve().bodyToMono(Boolean.class);
-            granted = body.toFuture().get().booleanValue();
+            granted = body.toFuture().get();
             log.info("Security AuthorizationDecision granted={}", granted);
         } catch (Exception e) {
             log.error("인가 서버에 요청 중 오류 : {}", e.getMessage());
