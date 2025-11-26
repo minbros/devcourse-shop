@@ -39,4 +39,9 @@ public class MemberRepositoryAdapter implements MemberRepository {
     public Optional<Member> findByEmail(String email) {
         return memberJpaRepository.findByEmail(email);
     }
+
+    @Override
+    public boolean existsById(UUID uuid) {
+        return memberJpaRepository.existsById(uuid);
+    }
 }

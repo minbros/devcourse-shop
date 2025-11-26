@@ -16,4 +16,6 @@ public interface MemberRepository {
     void deleteById(UUID uuid);
 
     Optional<Member> findByEmail(String email);
+
+    boolean existsById(UUID uuid);
 }

@@ -2,11 +2,13 @@ package grepp.shop.application;
 
 import grepp.shop.application.dto.MemberCommand;
 import grepp.shop.application.dto.MemberResponse;
+import grepp.shop.application.dto.TokenResponse;
 import grepp.shop.common.ResponseEntity;
 import grepp.shop.domain.Member;
 import grepp.shop.domain.MemberRepository;
 import grepp.shop.presentation.dto.LoginRequest;
 import grepp.shop.util.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,17 +63,15 @@ public class MemberService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT.value(), 0, null);
     }
 
-    public ResponseEntity<HashMap<String, Object>> login(LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> login(LoginRequest loginRequest) {
         Optional<Member> memberOptional = memberRepository.findByEmail(loginRequest.email());
 
-        HashMap<String, Object> res = new HashMap<>();
         if (memberOptional.isPresent()) {
             Member member = memberOptional.get();
             if (passwordEncoder.matches(loginRequest.password(), member.getPassword())) {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(member.getId().toString(), null);
-                String token = jwtProvider.generateToken(authentication);
-                res.put("token", token);
-                return new ResponseEntity<>(HttpStatus.OK.value(), 1, res);
+                TokenResponse token = new TokenResponse(jwtProvider.generateToken(authentication), jwtProvider.generateRefreshToken(authentication));
+                return new ResponseEntity<>(HttpStatus.OK.value(), 1, token);
             } else {
                 throw new IllegalArgumentException("password is not correct");
             }
@@ -80,7 +79,21 @@ public class MemberService {
         return null;
     }
 
-    public boolean check(String httpMethod, String requestPath) {
+    public ResponseEntity<TokenResponse> refreshToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("refresh-accessToken");
+        String subject = jwtProvider.getUserData(refreshToken);
+        UUID id = UUID.fromString(subject);
+        if (!memberRepository.existsById(id)) {
+            throw new IllegalStateException("Invalid accessToken for finding member");
+        }
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(id, null);
+        TokenResponse tokenResponse =
+                new TokenResponse(jwtProvider.generateToken(authentication), refreshToken);
+        return new ResponseEntity<>(HttpStatus.OK.value(), 1, tokenResponse);
+    }
+
+    public boolean check(String ignored1, String ignored2) {
         return true;
     }
 }

@@ -17,11 +17,23 @@ public class JwtTokenProvider {
     @Value("${token.secret}")
     private String secret;
 
-    private static final long JWT_EXPIRATION_MS = 86400000L * 7;
+    private static final long ACCESS_TOKEN_VALIDITY = 1000L * 60 * 60;
+    private static final long REFRESH_TOKEN_VALIDITY = 86400000L * 180;
 
     public String generateToken(Authentication authentication) {
         Date now = new Date();
-        Date expiredDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
+        Date expiredDate = new Date(now.getTime() + ACCESS_TOKEN_VALIDITY);
+        return Jwts.builder()
+                .subject((String) authentication.getPrincipal())
+                .issuedAt(now)
+                .expiration(expiredDate)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .compact();
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+        Date now = new Date();
+        Date expiredDate = new Date(now.getTime() + REFRESH_TOKEN_VALIDITY);
         return Jwts.builder()
                 .subject((String) authentication.getPrincipal())
                 .issuedAt(now)
